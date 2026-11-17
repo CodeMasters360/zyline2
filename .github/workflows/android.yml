@@ -58,10 +58,11 @@ jobs:
       # Same command as `make android` — the Kotlin sources import the
       # gomobile-generated `mobile.Mobile` API, so nothing compiles (tests
       # included) until this AAR exists.
-      - name: Build gomobile AAR
+      - name: Verify Android builds, unit tests and lint
+        working-directory: android
         run: |
-          mkdir -p android/app/libs
-          gomobile bind -ldflags="-extldflags=-Wl,-z,max-page-size=16384" -target android -androidapi 21 -o android/app/libs/mobile.aar zyrln/platforms/mobile
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug assembleRelease testDebugUnitTest lintDebug lintRelease
 
       - name: Verify Android builds, unit tests and lint
         working-directory: android
