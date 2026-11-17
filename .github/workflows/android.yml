@@ -63,7 +63,10 @@ jobs:
 
       - name: Build Go mobile library (AAR)
         run: make android
-
+        
+      - name: Generate Android Keystore
+        run: make keystore
+        
       # Step 6: Build Android APKs (Debug & Release)
       - name: Build Android APKs
         working-directory: android
