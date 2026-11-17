@@ -1,6 +1,7 @@
 # Zyrln
 
-[راهنمای فارسی](docs/fa/guide.md) · [Download](https://github.com/ajavadinezhad/zyrln/releases)
+[راهنمای فارسی](docs/fa/guide.md) ·[Download](https://github.com/ajavadinezhad/zyrln/releases)
+https://github.com/ajavadinezhad/zyrln
 
 Zyrln helps you access blocked sites through Google. Use a config from someone you trust, or create your own connection with a Google account and a Cloudflare Worker or VPS server. Results depend on your network.
 
