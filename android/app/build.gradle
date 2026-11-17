@@ -1,0 +1,96 @@
+plugins {
+    id 'com.android.application'
+}
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def repoRoot = rootProject.file("..")
+def appVersionName = repoRoot.toPath().resolve("VERSION").toFile().text.trim()
+def appVersionCode = repoRoot.toPath().resolve("VERSION_CODE").toFile().text.trim() as int
+
+android {
+    namespace 'com.zyrln.relay'
+    compileSdk 37
+
+    defaultConfig {
+        applicationId "com.zyrln.relay"
+        minSdk 28
+        targetSdk 37
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode appVersionCode
+        versionName appVersionName
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a"
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            // Use native x86_64 code on desktop emulators rather than ARM translation.
+            ndk {
+                abiFilters.add("x86_64")
+            }
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+
+    buildFeatures {
+        buildConfig true
+        viewBinding true
+    }
+
+}
+
+dependencies {
+    // gomobile-generated AAR — built by `make aar` in the project root
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
+
+    implementation 'androidx.core:core-ktx:1.19.1'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
+    implementation 'androidx.lifecycle:lifecycle-service:2.11.0'
+
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.4.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20260814'
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            def suffix = variant.buildType == "debug" ? "-debug" : ""
+            output.outputFileName.set("zyrln-${appVersionName}${suffix}.apk")
+        }
+    }
+}
